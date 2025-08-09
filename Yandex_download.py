@@ -3,6 +3,7 @@ import requests
 import urllib.parse
 import os
 
+print("Hello Git")
 
 def get_unique_dir_name(base_path):
     '''
