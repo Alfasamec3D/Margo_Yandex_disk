@@ -3,7 +3,15 @@ import requests
 import urllib.parse
 import os
 
-print("Hello Git")
+folders=['ПОРТРЕТЫ','СТУДИЯ','УЛИЦА']
+folder_map={
+    'Портрет:': 0,
+    'портрет:': 0,
+    'Фотографии со студии:': 1,
+    'Студия:': 1,
+    'Фотографии с улицы:': 2,
+    'Улица:': 2,
+}
 
 def get_unique_dir_name(base_path):
     '''
@@ -19,15 +27,13 @@ def get_unique_dir_name(base_path):
     return path
 
 def download_file(yandex_link, file_path, save_path):
-    print(yandex_link)
-    print(file_path)
-    print(save_path)
     encoded_public_key=urllib.parse.quote(yandex_link, safe='')
     encoded_file_path=urllib.parse.quote(file_path, safe='')
 
     api_url=f"https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key={encoded_public_key}&path={encoded_file_path}"
 
     response = requests.get(api_url)
+    
     response.raise_for_status()
     download_info = response.json()
 
@@ -43,9 +49,8 @@ def download_file(yandex_link, file_path, save_path):
 print("Приветствую! \nЭто программа автоматизированной загрузки фотографий с Яндекс диска.\n")
 
 while True:
-    pathto_txt=input("Введи путь к файлу .txt расширения со списком имён фотографий (Без кавычек на концах!): ")
-    #pathto_txt='C:\media\programs\margo\test_docs\input (2).txt'
-    print(pathto_txt)
+    pathto_txt=input("Введи путь к файлу .txt расширения со списком имён фотографий: ")
+
     try:
         with open(pathto_txt, "r", encoding="utf-8") as file:
             text = file.read()
@@ -56,8 +61,7 @@ while True:
         print(f"❌ Путь недействительный или файл нельзя открыть: {e}")
 
 
-#user_yandex_link=input("Введи ссылку на Яндекс диск: ")
-user_yandex_link="https://disk.yandex.ru/d/MXed_E1NZiv0XA"
+user_yandex_link=input("Введи ссылку на Яндекс диск: ")
 api_url=f"https://cloud-api.yandex.net/v1/disk/public/resources?public_key={urllib.parse.quote(user_yandex_link, safe='')}"
 response = requests.get(api_url)
 response.raise_for_status()
@@ -65,19 +69,10 @@ response.raise_for_status()
 disk_data=response.json()
 print("Ответ от диска \"",disk_data["name"], "\" получен.\n")
 
-#user_save_path=input("Введи путь к папке для загрузки (Без кавычек на концах!): ")
-user_save_path="C:\media\programs\margo\save_test"
+user_save_path=input("Введи путь к папке для загрузки: ")
 
 lines=text.splitlines()
 current_section=None
-folder_map={
-    'Портрет:': 'ПОРТРЕТЫ',
-    'портрет:': 'ПОРТРЕТЫ',
-    'Фотографии со студии:': 'СТУДИЯ',
-    'Студия:': 'СТУДИЯ',
-    'Фотографии с улицы:': 'УЛИЦА',
-    'Улица:': 'УЛИЦА',
-}
 
 fin_path=get_unique_dir_name(f"{user_save_path}/{disk_data['name']}")
 
@@ -93,5 +88,15 @@ for line in lines:
     if current_section is None:
     
         continue
-    download_file(user_yandex_link, f"/{current_section}/{line.lower()}",f"{fin_path}/{current_section}/{line.lower()}")
-
+    try:
+        download_file(user_yandex_link, f"/{folders[current_section]}/{line.lower()}",f"{fin_path}/{folders[current_section]}/{line.lower()}")
+    except requests.exceptions.HTTPError as http_err2:
+        if (current_section==0) or (current_section==1):
+            try:
+                download_file(user_yandex_link, f"/{folders[(current_section+1)%2]}/{line.lower()}",f"{fin_path}/{folders[current_section]}/{line.lower()}")
+            except requests.exceptions.HTTPError as http_err:
+                #print(f"HTTP error occurred: {http_err}")
+                print(f"/{folders[(current_section+1)%2]}/{line.lower()}\n")
+        elif current_section==2:
+            #print(f"HTTP error occurred: {http_err2}")
+            print(f"/{folders[current_section]}/{line.lower()}\n")
