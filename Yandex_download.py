@@ -81,7 +81,7 @@ for line in lines:
     if not line:
         continue
     if line.lower() in folder_map:
-        current_section=folder_map[line]
+        current_section=folder_map[line.lower()]
         continue
     
     if current_section is None:
