@@ -5,12 +5,11 @@ import os
 
 folders=['ПОРТРЕТЫ','СТУДИЯ','УЛИЦА']
 folder_map={
-    'Портрет:': 0,
     'портрет:': 0,
-    'Фотографии со студии:': 1,
-    'Студия:': 1,
-    'Фотографии с улицы:': 2,
-    'Улица:': 2,
+    'фотографии со студии:': 1,
+    'студия:': 1,
+    'фотографии с улицы:': 2,
+    'улица:': 2,
 }
 
 def get_unique_dir_name(base_path):
@@ -81,7 +80,7 @@ for line in lines:
     line=line.strip()
     if not line:
         continue
-    if line in folder_map:
+    if line.lower() in folder_map:
         current_section=folder_map[line]
         continue
     
