@@ -100,3 +100,4 @@ for line in lines:
         elif current_section==2:
             #print(f"HTTP error occurred: {http_err2}")
             print(f"/{folders[current_section]}/{line.lower()}\n")
+print("Я заакончил")
