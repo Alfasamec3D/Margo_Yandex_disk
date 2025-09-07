@@ -3,7 +3,7 @@ import requests
 import urllib.parse
 import os
 
-folders=['ПОРТРЕТЫ','СТУДИЯ','УЛИЦА']
+folders=['ПОРТРЕТ','СТУДИЯ','УЛИЦА']
 folder_map={
     'портрет:': 0,
     'фотографии со студии:': 1,
